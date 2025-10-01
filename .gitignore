@@ -1,0 +1,7 @@
+node_modules/
+package-lock.json
+.DS_Store
+.vscode/
+.idea/
+# keep instructor files committed so autograder and workflows keep working
+# _instructor/

@@ -1,0 +1,14 @@
+{
+  "name": "lesson-2-3-autograder",
+  "version": "1.0.0",
+  "description": "Autograder for Lesson-2.3 CSS assignment",
+  "scripts": {
+    "test": "node tests/autograder.js"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "devDependencies": {
+    "jsdom": "^27.0.0"
+  }
+}

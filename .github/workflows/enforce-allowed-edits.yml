@@ -1,0 +1,44 @@
+name: Enforce allowed editable files
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check-files:
+    name: Check changed files
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify changed files are allowed
+        run: |
+          set -euo pipefail
+          BEFORE="${{ github.event.before }}"
+          SHA="${{ github.sha }}"
+          # If this is the initial push in a new repo, skip enforcement
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "Initial commit / empty before ref — skipping allowed-files enforcement."
+            exit 0
+          fi
+
+          echo "Checking changed files between $BEFORE and $SHA"
+          files=$(git diff --name-only "$BEFORE" "$SHA" || true)
+          echo "Files changed:\n$files"
+
+          # Allowed files (exact names). Adjust if more files should be editable.
+          allowed_regex='^(index.html|style.css)$'
+
+          disallowed=$(printf "%s\n" "$files" | grep -v -E "$allowed_regex" || true)
+
+          if [ -n "$disallowed" ]; then
+            echo "\nERROR: The following files were changed but are not allowed to be edited in this assignment:" >&2
+            printf "%s\n" "$disallowed" >&2
+            echo "Only edits to 'index.html' and 'style.css' are permitted. Please revert changes to other files." >&2
+            exit 1
+          fi
+
+          echo "Only allowed files were changed."
